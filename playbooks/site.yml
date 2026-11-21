@@ -1,0 +1,7 @@
+---
+- name: harden server and configure https nginx proxy
+  hosts: webservers
+  become: true
+  roles:
+    - hardening
+    - nginx_proxy

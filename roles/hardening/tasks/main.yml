@@ -40,7 +40,7 @@
 - name: allow ssh, http and https through ufw
   community.general.ufw:
     rule: allow
-    port: {{ item }}
+    port: "{{ item }}"
     proto: tcp
   loop:
     - "22"
