@@ -1,0 +1,50 @@
+---
+- name: install nginx and openssl
+  ansible.builtin.apt:
+    name:
+    - nginx
+    - openssl
+    state: present
+
+- name: create tls certificate directory
+  ansible.builtin.file:
+  path: /etc/nginx/ssl
+  state: directory
+  owner: root
+  group: root
+  mode: "0700"
+
+- name: generate self-signed tls certificate if missing
+  ansible.builtin.command: >
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048
+    -keyout: /etc/nginx/ssl/nginx.key
+    -out: /etc/nginx/ssl/nginx.crt
+    -subj "/CN=lab-web.local"
+  args:
+    creates: /etc/nginx/ssl/selfsigned.crt
+
+- name: remove default nginx site
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: reload nginx
+
+- name: deploy reverse proxy config
+  ansible.builtin.template:
+    src: site.conf.j2
+    dest: /etc/nginx/sites-available/proxy.conf
+    mode: "0644"
+  notify: reload nginx
+
+- name: enable reverse proxy site
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/proxy.conf
+    dest: /etc/nginx/sites-enabled/proxy.conf
+    state: link
+  notify: reload nginx
+
+- name: ensure nginx is enabled and running
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true
