@@ -1,4 +1,4 @@
-# ansible-linux-hardening
+# Ansible Linux Hardening
 
 Idempotent ansible roles for hardening an ubuntu server host (ssh, ufw, fail2ban, unattended-upgrades) and deploying an https nginx reverse proxy with python verification.
 
